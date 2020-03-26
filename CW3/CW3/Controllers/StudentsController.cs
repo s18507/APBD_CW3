@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using CW3.DAL;
 using CW3.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace CW3.Controllers
 {
@@ -29,20 +32,30 @@ namespace CW3.Controllers
 
         public IActionResult GetStudent(int id)
         {
-            if (id == 1)
-            {
-                return Ok("Kowalski");
-            }
-            else if (id == 2)
-            {
-                return Ok("Malewski");
-            }
-            else if (id == 3)
-            {
-                return Ok("Andrzejewski");
-            }
+          using(var connection = new SqlConnection("Data Source=db-mssql;" +
+                                                   "Initial Catalog=s18507;Integrated Security=True"))
+          using (var com = new SqlCommand())
+          {
+              com.Connection = connection;
+              com.CommandText = "Select * from Student";
+              
+              connection.Open();
+              var dr = com.ExecuteReader();
+              var student = new List<Student>();
+              while (dr.Read())
+              {
+                  student.Add(new Student
+                  {
+                      IndexNumber = dr["IndexNumber"].ToString(),
+                      FirstName = dr["FirstName"].ToString(),
+                      LastName = dr["LastName"].ToString(),
+                      BirthDate = dr["BirthDate"].ToString(),
+                      IdEnrollment = IntegerType.FromObject(dr["IdEnrollment"])
+                  });
+              }
 
-            return NotFound("Nie znaleziono studenta");
+          }
+          return Ok();
         }
 
         [HttpPost]
@@ -70,6 +83,16 @@ namespace CW3.Controllers
 
         }
 
+        [HttpGet]
+        public IActionResult Get(){
+            SqlConnection connection = new SqlConnection("Data Source=db-mssql;" +
+                                                         "Initial Catalog=s18507;Integrated Security=True");
+            SqlCommand command;
+            return Ok();
+        }
 
+        
     }
+    
+    
 }
