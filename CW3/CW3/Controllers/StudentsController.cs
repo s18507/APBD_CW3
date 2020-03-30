@@ -25,38 +25,68 @@ namespace CW3.Controllers
         [HttpGet]
         public IActionResult GetStudents()
         {
-            return Ok(_dbService.GetStudents());
+            var list = new List<Student>();
+            
+            using(var connection = new SqlConnection("Data Source=db-mssql;" +
+                                                     "Initial Catalog=s18507;Integrated Security=True"))
+            using (var com = new SqlCommand())
+            {
+                com.Connection = connection;
+                com.CommandText = "select indexNumber,FirstName,LastName,BirthDate,Studies.name,Enrollment.semester from students inner join enrollment on students.idEnrollment=Enrollment.idEnrollment inner join studies on Enrollment.idStudy=studies.idstudy";
+
+                connection.Open();
+                SqlDataReader dr = com.ExecuteReader();
+                while (dr.Read())
+                {
+                    var st = new Student();
+                    st.IndexNumber = dr["IndexNumber"].ToString();
+                    st.FirstName = dr["FirstName"].ToString();
+                    st.LastName = dr["LastName"].ToString();
+                    st.BirthDate = dr["BirthDate"].ToString();
+                    st.StudiesName = dr["name"].ToString();
+                    st.Semester = dr["semester"].ToString();
+
+                    list.Add(st);
+                }
+
+            }
+            
+            return Ok(list);
         }
 
         [HttpGet("{id}")]
 
         public IActionResult GetStudent(int id)
         {
-          using(var connection = new SqlConnection("Data Source=db-mssql;" +
-                                                   "Initial Catalog=s18507;Integrated Security=True"))
-          using (var com = new SqlCommand())
-          {
-              com.Connection = connection;
-              com.CommandText = "Select * from Student";
-              
-              connection.Open();
-              var dr = com.ExecuteReader();
-              var student = new List<Student>();
-              while (dr.Read())
-              {
-                  student.Add(new Student
-                  {
-                      IndexNumber = dr["IndexNumber"].ToString(),
-                      FirstName = dr["FirstName"].ToString(),
-                      LastName = dr["LastName"].ToString(),
-                      BirthDate = dr["BirthDate"].ToString(),
-                      IdEnrollment = IntegerType.FromObject(dr["IdEnrollment"])
-                  });
-              }
+            var list = new List<Enrollment>();
 
-          }
-          return Ok();
+            using (var con = new SqlConnection("Data Source=db-mssql;" +
+                                               "Initial Catalog=s18507;Integrated Security=True"))
+            using (var com = new SqlCommand())
+            {
+                com.Connection = con;
+                com.CommandText = $"select indexNumber,FirstName,LastName,BirthDate,Studies.name,Enrollment.semester from students inner join enrollment on students.idEnrollment=Enrollment.idEnrollment inner join studies on Enrollment.idStudy=studies.idstudy where indexnumber=('s0'+cast(@id as varchar))";
+                com.Parameters.AddWithValue("id", id);
+                con.Open();
+                SqlDataReader dr = com.ExecuteReader();
+                while (dr.Read())
+                {
+                    var enrollment = new Enrollment();
+                    enrollment = new Enrollment();
+                    enrollment.Semester = Convert.ToInt32(dr["Semester"]);
+                    enrollment.IdStudy = Convert.ToInt32(dr["IdStudy"]);
+                    enrollment.IdEnrollment = Convert.ToInt32(dr["IdEnrollment"]);
+                    enrollment.StartDate = dr["StartDate"].ToString();
+                    list.Add(enrollment);
+                    
+                }
+
+                return Ok(list);
+            }
+
+           
         }
+
 
         [HttpPost]
         //dodanie elementow
