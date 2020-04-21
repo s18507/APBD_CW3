@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using CW3.DAL;
+
 using CW3.Models;
 using CW3.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace CW3.Controllers
 {

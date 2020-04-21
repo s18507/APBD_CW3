@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Security.Claims;
 using CW3.DAL;
 using CW3.Models;
+using CW3.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic.CompilerServices;
 
@@ -13,7 +16,7 @@ namespace CW3.Controllers
     [Route("api/students")]
     public class StudentsController : ControllerBase
     {
-        private readonly IDbService _dbService;
+       private readonly IDbService _dbService;
 
 
         public StudentsController(IDbService dbService)
@@ -21,8 +24,30 @@ namespace CW3.Controllers
             _dbService = dbService;
         }
 
+        private SqlServerDbService service;
+        public StudentsController()
+        {
+            service = new SqlServerDbService();
+        }
+        
+        [HttpGet]
+        public IActionResult GetStudents(string orderBy)
+        {
+           
+            return service.GetStudent(orderBy);
+        }
+        
+        [HttpGet("{id}")]
+        public IActionResult GetStudent(int id)
+        {
+        
+            return service.GetStudent(id);
+        }
+        
+
 
         [HttpGet]
+        [Authorize(Roles = "admin")]
         public IActionResult GetStudents()
         {
             var list = new List<Student>();
@@ -54,38 +79,41 @@ namespace CW3.Controllers
             return Ok(list);
         }
 
-        [HttpGet("{id}")]
+       
+        
+        
+       // [HttpGet("{id}")]
 
-        public IActionResult GetStudent(int id)
-        {
-            var list = new List<Enrollment>();
-
-            using (var con = new SqlConnection("Data Source=db-mssql;" +
-                                               "Initial Catalog=s18507;Integrated Security=True"))
-            using (var com = new SqlCommand())
-            {
-                com.Connection = con;
-                com.CommandText = $"select indexNumber,FirstName,LastName,BirthDate,Studies.name,Enrollment.semester from students inner join enrollment on students.idEnrollment=Enrollment.idEnrollment inner join studies on Enrollment.idStudy=studies.idstudy where indexnumber=('s0'+cast(@id as varchar))";
-                com.Parameters.AddWithValue("id", id);
-                con.Open();
-                SqlDataReader dr = com.ExecuteReader();
-                while (dr.Read())
-                {
-                    var enrollment = new Enrollment();
-                    enrollment = new Enrollment();
-                    enrollment.Semester = Convert.ToInt32(dr["Semester"]);
-                    enrollment.IdStudy = Convert.ToInt32(dr["IdStudy"]);
-                    enrollment.IdEnrollment = Convert.ToInt32(dr["IdEnrollment"]);
-                    enrollment.StartDate = dr["StartDate"].ToString();
-                    list.Add(enrollment);
-                    
-                }
-
-                return Ok(list);
-            }
-
-           
-        }
+        // public IActionResult GetStudent(int id)
+        // {
+        //     var list = new List<Enrollment>();
+        //
+        //     using (var con = new SqlConnection("Data Source=db-mssql;" +
+        //                                        "Initial Catalog=s18507;Integrated Security=True"))
+        //     using (var com = new SqlCommand())
+        //     {
+        //         com.Connection = con;
+        //         com.CommandText = $"select indexNumber,FirstName,LastName,BirthDate,Studies.name,Enrollment.semester from students inner join enrollment on students.idEnrollment=Enrollment.idEnrollment inner join studies on Enrollment.idStudy=studies.idstudy where indexnumber=('s0'+cast(@id as varchar))";
+        //         com.Parameters.AddWithValue("id", id);
+        //         con.Open();
+        //         SqlDataReader dr = com.ExecuteReader();
+        //         while (dr.Read())
+        //         {
+        //             var enrollment = new Enrollment();
+        //             enrollment = new Enrollment();
+        //             enrollment.Semester = Convert.ToInt32(dr["Semester"]);
+        //             enrollment.IdStudy = Convert.ToInt32(dr["IdStudy"]);
+        //             enrollment.IdEnrollment = Convert.ToInt32(dr["IdEnrollment"]);
+        //             enrollment.StartDate = dr["StartDate"].ToString();
+        //             list.Add(enrollment);
+        //             
+        //         }
+        //
+        //         return Ok(list);
+        //     }
+        //
+        //    
+        // }
 
 
         [HttpPost]

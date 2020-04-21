@@ -7,6 +7,7 @@
         <e p="appsettings.json" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
         <e p="Controllers" t="Include">
+          <e p="EnrollmentsController.cs" t="Include" />
           <e p="StudentsController.cs" t="Include" />
         </e>
         <e p="CW3.csproj" t="IncludeRecursive" />
@@ -14,7 +15,15 @@
           <e p="IDbService.cs" t="Include" />
           <e p="MockDbService.cs" t="Include" />
         </e>
+        <e p="Handlers" t="Include">
+          <e p="AuthExampleCode.cs" t="Include" />
+        </e>
+        <e p="Middleware" t="Include">
+          <e p="LoggingMiddleware.cs" t="Include" />
+        </e>
         <e p="Models" t="Include">
+          <e p="Enrollment.cs" t="Include" />
+          <e p="Promotion.cs" t="Include" />
           <e p="Student.cs" t="Include" />
         </e>
         <e p="obj" t="ExcludeRecursive">
@@ -27,6 +36,10 @@
         <e p="Program.cs" t="Include" />
         <e p="Properties" t="Include">
           <e p="launchSettings.json" t="Include" />
+        </e>
+        <e p="Services" t="Include">
+          <e p="IStudentsDbService.cs" t="Include" />
+          <e p="SqlServerDbService.cs" t="Include" />
         </e>
         <e p="Startup.cs" t="Include" />
       </e>
